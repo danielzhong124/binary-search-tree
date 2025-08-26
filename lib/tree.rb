@@ -57,10 +57,10 @@ class Tree
     curr
   end
 
-  def find(value, root = @root)
+  def find(value, _root = @root)
     return nil if curr.nil?
     return curr if value == curr.value
-    
+
     value < curr.value ? find(value, curr.left) : find(value, curr.right)
   end
 
@@ -69,41 +69,54 @@ class Tree
     values = []
     until queue.empty?
       curr = queue.shift
+      block_given? ? yield(curr) : values << curr.value
       queue << curr.left unless curr.left.nil?
       queue << curr.right unless curr.right.nil?
     end
 
-    values
+    values unless block_given?
   end
 
-  def preorder(root = @root)
-    return [] if root.nil?
+  def preorder(root = @root, &block)
+    if block_given?
+      return if root.nil?
 
-    values = [root.value]
-    values += preorder(root.left)
-    values += preorder(root.right)
+      yield(root)
+      preorder(root.left, &block)
+      preorder(root.right, &block)
+    else
+      return [] if root.nil?
 
-    values
+      [root.value] + preorder(root.left) + preorder(root.right)
+    end
   end
 
-  def inorder(root = @root)
-    return [] if root.nil?
+  def inorder(root = @root, &block)
+    if block_given?
+      return if root.nil?
 
-    values = inorder(root.left)
-    values << root.value
-    values += inorder(root.right)
+      inorder(root.left, &block)
+      yield(root)
+      inorder(root.right, &block)
+    else
+      return [] if root.nil?
 
-    values
+      inorder(root.left) + [root.value] + inorder(root.right)
+    end
   end
 
-  def postorder(root = @root)
-    return [] if root.nil?
+  def postorder(root = @root, &block)
+    if block_given?
+      return if root.nil?
 
-    values = postorder(root.left)
-    values += postorder(root.right)
-    values << root.value
+      postorder(root.left, &block)
+      postorder(root.right, &block)
+      yield(root)
+    else
+      return [] if root.nil?
 
-    values
+      postorder(root.left) + postorder(root.right) + [root.value]
+    end
   end
 
   def pretty_print(node = @root, prefix = '', is_left = true)
