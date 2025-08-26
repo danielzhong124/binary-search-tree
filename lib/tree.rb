@@ -64,6 +64,19 @@ class Tree
     value < curr.value ? find(value, curr.left) : find(value, curr.right)
   end
 
+  def level_order
+    queue = @root.nil? ? [] : [@root]
+    values = []
+    until queue.empty?
+      curr = queue.shift
+      block_given? ? yield(curr) : values << curr.value
+      queue << curr.left unless curr.left.nil?
+      queue << curr.right unless curr.right.nil?
+    end
+
+    values unless block_given?
+  end
+
   def pretty_print(node = @root, prefix = '', is_left = true)
     pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
     puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.value}"
