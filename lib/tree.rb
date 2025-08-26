@@ -3,18 +3,18 @@
 require_relative 'node'
 
 class Tree
-  def initialize(array)
-    @root = build_tree(array.sort.uniq)
+  def initialize(values)
+    @root = build_tree(values.sort.uniq)
   end
 
-  def build_tree(array)
-    return nil if array.empty?
+  def build_tree(values)
+    return nil if values.empty?
 
-    mid = array.length / 2
+    mid = values.length / 2
 
-    root = Node.new(array[mid])
-    root.left = build_tree(array[0...mid])
-    root.right = build_tree(array[(mid + 1)...array.length])
+    root = Node.new(values[mid])
+    root.left = build_tree(values[0...mid])
+    root.right = build_tree(values[(mid + 1)...values.length])
 
     root
   end
@@ -23,33 +23,33 @@ class Tree
     @root = insert_rec(value, @root)
   end
 
-  def insert_rec(value, curr)
-    return Node.new(value) if curr.nil?
-    return curr if value == curr.value
+  def insert_rec(value, root)
+    return Node.new(value) if root.nil?
+    return root if value == root.value
 
-    value < curr.value ? curr.left = insert_rec(value, curr.left) : curr.right = insert_rec(value, curr.right)
-    curr
+    value < root.value ? root.left = insert_rec(value, root.left) : root.right = insert_rec(value, root.right)
+    root
   end
 
   def delete(value)
     @root = delete_rec(value, @root)
   end
 
-  def delete_rec(value, curr)
-    return nil if curr.nil?
+  def delete_rec(value, root)
+    return nil if root.nil?
 
-    if value == curr.value
-      return curr.right if curr.left.nil?
-      return curr.left if curr.right.nil?
+    if value == root.value
+      return root.right if root.left.nil?
+      return root.left if root.right.nil?
 
-      successor = leftmost_leaf(curr.right)
-      curr.value = successor.value
-      curr.right = delete_rec(successor.value, curr.right)
+      successor = leftmost_leaf(root.right)
+      root.value = successor.value
+      root.right = delete_rec(successor.value, root.right)
     else
-      value < curr.value ? curr.left = delete_rec(value, curr.left) : curr.right = delete_rec(value, curr.right)
+      value < root.value ? root.left = delete_rec(value, root.left) : root.right = delete_rec(value, root.right)
     end
 
-    curr
+    root
   end
 
   def leftmost_leaf(curr)
@@ -57,15 +57,15 @@ class Tree
     curr
   end
 
-  def find(value, curr = @root)
+  def find(value, root = @root)
     return nil if curr.nil?
     return curr if value == curr.value
     
     value < curr.value ? find(value, curr.left) : find(value, curr.right)
   end
 
-  def level_order
-    queue = @root.nil? ? [] : [@root]
+  def level_order(root = @root)
+    queue = root.nil? ? [] : [root]
     values = []
     until queue.empty?
       curr = queue.shift
@@ -75,6 +75,8 @@ class Tree
     end
 
     values unless block_given?
+  end
+
   end
 
   def pretty_print(node = @root, prefix = '', is_left = true)
