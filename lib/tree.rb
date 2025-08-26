@@ -57,15 +57,15 @@ class Tree
     curr
   end
 
-  def find(value, _root = @root)
-    return nil if curr.nil?
-    return curr if value == curr.value
+  def find(value, root = @root)
+    return nil if root.nil?
+    return root if value == root.value
 
-    value < curr.value ? find(value, curr.left) : find(value, curr.right)
+    value < root.value ? find(value, root.left) : find(value, root.right)
   end
 
   def level_order(root = @root)
-    queue = root.nil? ? [] : [root]
+    queue = root ? [root] : []
     values = []
     until queue.empty?
       curr = queue.shift
@@ -117,6 +117,37 @@ class Tree
 
       postorder(root.left) + postorder(root.right) + [root.value]
     end
+  end
+
+  def height(value)
+    node = find(value)
+    return nil if node.nil?
+
+    left_height = node.left ? 1 + height(node.left.value) : 0
+    right_height = node.right ? 1 + height(node.right.value) : 0
+
+    [left_height, right_height].max
+  end
+
+  def depth(value, root = @root)
+    return nil if root.nil?
+    return 0 if value == root.value
+
+    value < root.value ? 1 + depth(value, root.left) : 1 + depth(value, root.right)
+  end
+
+  def balanced?(root = @root)
+    return true if root.nil?
+
+    left_height = root.left ? 1 + height(root.left.value) : 0
+    right_height = root.right ? 1 + height(root.right.value) : 0
+
+    (left_height - right_height).between?(-1, 1) && balanced?(root.left) && balanced?(root.right)
+  end
+
+  def rebalance
+    values = inorder
+    @root = build_tree(values)
   end
 
   def pretty_print(node = @root, prefix = '', is_left = true)
